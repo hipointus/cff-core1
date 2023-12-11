@@ -3,8 +3,10 @@ package http
 import (
 	"net"
 
-	"github.com/Dreamacro/clash/common/cache"
-	C "github.com/Dreamacro/clash/constant"
+	"github.com/metacubex/mihomo/adapter/inbound"
+	"github.com/metacubex/mihomo/common/lru"
+	C "github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/constant/features"
 )
 
 type Listener struct {
@@ -29,19 +31,26 @@ func (l *Listener) Close() error {
 	return l.listener.Close()
 }
 
-func New(addr string, in chan<- C.ConnContext) (C.Listener, error) {
-	return NewWithAuthenticate(addr, in, true)
+func New(addr string, tunnel C.Tunnel, additions ...inbound.Addition) (*Listener, error) {
+	return NewWithAuthenticate(addr, tunnel, true, additions...)
 }
 
-func NewWithAuthenticate(addr string, in chan<- C.ConnContext, authenticate bool) (C.Listener, error) {
-	l, err := net.Listen("tcp", addr)
+func NewWithAuthenticate(addr string, tunnel C.Tunnel, authenticate bool, additions ...inbound.Addition) (*Listener, error) {
+	if len(additions) == 0 {
+		additions = []inbound.Addition{
+			inbound.WithInName("DEFAULT-HTTP"),
+			inbound.WithSpecialRules(""),
+		}
+	}
+	l, err := inbound.Listen("tcp", addr)
+
 	if err != nil {
 		return nil, err
 	}
 
-	var c *cache.LruCache
+	var c *lru.LruCache[string, bool]
 	if authenticate {
-		c = cache.New(cache.WithAge(30))
+		c = lru.New[string, bool](lru.WithAge[string, bool](30))
 	}
 
 	hl := &Listener{
@@ -57,7 +66,12 @@ func NewWithAuthenticate(addr string, in chan<- C.ConnContext, authenticate bool
 				}
 				continue
 			}
-			go HandleConn(conn, in, c)
+			if features.CMFA {
+				if t, ok := conn.(*net.TCPConn); ok {
+					t.SetKeepAlive(false)
+				}
+			}
+			go HandleConn(conn, tunnel, c, additions...)
 		}
 	}()
 

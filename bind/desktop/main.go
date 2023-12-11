@@ -2,14 +2,15 @@ package main
 
 import "C"
 import (
-	"github.com/Dreamacro/clash/constant"
-	"github.com/Dreamacro/clash/hub/executor"
-	"github.com/Dreamacro/clash/hub/route"
-	"github.com/Dreamacro/clash/log"
-	"github.com/oschwald/geoip2-golang"
-	"go.uber.org/automaxprocs/maxprocs"
 	"os"
 	"path/filepath"
+
+	"github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/hub/executor"
+	"github.com/metacubex/mihomo/hub/route"
+	"github.com/metacubex/mihomo/log"
+	"github.com/oschwald/geoip2-golang"
+	"go.uber.org/automaxprocs/maxprocs"
 )
 
 // status service status

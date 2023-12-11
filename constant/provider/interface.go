@@ -1,7 +1,8 @@
 package provider
 
 import (
-	"github.com/Dreamacro/clash/constant"
+	"github.com/metacubex/mihomo/common/utils"
+	"github.com/metacubex/mihomo/constant"
 )
 
 // Vehicle Type
@@ -70,19 +71,31 @@ type ProxyProvider interface {
 	// Commonly used in DialContext and DialPacketConn
 	Touch()
 	HealthCheck()
+	Version() uint32
+	RegisterHealthCheckTask(url string, expectedStatus utils.IntRanges[uint16], filter string, interval uint)
 }
 
-// Rule Type
+// RuleProvider interface
+type RuleProvider interface {
+	Provider
+	Behavior() RuleBehavior
+	Match(*constant.Metadata) bool
+	ShouldResolveIP() bool
+	ShouldFindProcess() bool
+	AsRule(adaptor string) constant.Rule
+}
+
+// Rule Behavior
 const (
-	Domain RuleType = iota
+	Domain RuleBehavior = iota
 	IPCIDR
 	Classical
 )
 
-// RuleType defined
-type RuleType int
+// RuleBehavior defined
+type RuleBehavior int
 
-func (rt RuleType) String() string {
+func (rt RuleBehavior) String() string {
 	switch rt {
 	case Domain:
 		return "Domain"
@@ -95,11 +108,20 @@ func (rt RuleType) String() string {
 	}
 }
 
-// RuleProvider interface
-type RuleProvider interface {
-	Provider
-	Behavior() RuleType
-	Match(*constant.Metadata) bool
-	ShouldResolveIP() bool
-	AsRule(adaptor string) constant.Rule
+const (
+	YamlRule RuleFormat = iota
+	TextRule
+)
+
+type RuleFormat int
+
+func (rf RuleFormat) String() string {
+	switch rf {
+	case YamlRule:
+		return "YamlRule"
+	case TextRule:
+		return "TextRule"
+	default:
+		return "Unknown"
+	}
 }

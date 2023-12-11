@@ -6,22 +6,22 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Dreamacro/clash/adapter/inbound"
-	"github.com/Dreamacro/clash/common/cache"
-	N "github.com/Dreamacro/clash/common/net"
-	C "github.com/Dreamacro/clash/constant"
-	authStore "github.com/Dreamacro/clash/listener/auth"
-	"github.com/Dreamacro/clash/log"
+	"github.com/metacubex/mihomo/adapter/inbound"
+	"github.com/metacubex/mihomo/common/lru"
+	N "github.com/metacubex/mihomo/common/net"
+	C "github.com/metacubex/mihomo/constant"
+	authStore "github.com/metacubex/mihomo/listener/auth"
+	"github.com/metacubex/mihomo/log"
 )
 
-func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.LruCache) {
-	client := newClient(c.RemoteAddr(), c.LocalAddr(), in)
+func HandleConn(c net.Conn, tunnel C.Tunnel, cache *lru.LruCache[string, bool], additions ...inbound.Addition) {
+	client := newClient(c, tunnel, additions...)
 	defer client.CloseIdleConnections()
 
 	conn := N.NewBufferedConn(c)
 
 	keepAlive := true
-	trusted := cache == nil // disable authenticate if cache is nil
+	trusted := cache == nil // disable authenticate if lru is nil
 
 	for keepAlive {
 		request, err := ReadRequest(conn.Reader())
@@ -48,7 +48,7 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.LruCache) {
 					break // close connection
 				}
 
-				in <- inbound.NewHTTPS(request, conn)
+				tunnel.HandleTCPConn(inbound.NewHTTPS(request, conn, additions...))
 
 				return // hijack connection
 			}
@@ -61,7 +61,7 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.LruCache) {
 			request.RequestURI = ""
 
 			if isUpgradeRequest(request) {
-				handleUpgrade(conn, request, in)
+				handleUpgrade(conn, request, tunnel, additions...)
 
 				return // hijack connection
 			}
@@ -95,11 +95,14 @@ func HandleConn(c net.Conn, in chan<- C.ConnContext, cache *cache.LruCache) {
 		}
 	}
 
-	conn.Close()
+	_ = conn.Close()
 }
 
-func authenticate(request *http.Request, cache *cache.LruCache) *http.Response {
+func authenticate(request *http.Request, cache *lru.LruCache[string, bool]) *http.Response {
 	authenticator := authStore.Authenticator()
+	if inbound.SkipAuthRemoteAddress(request.RemoteAddr) {
+		authenticator = nil
+	}
 	if authenticator != nil {
 		credential := parseBasicProxyAuthorization(request)
 		if credential == "" {
@@ -114,7 +117,7 @@ func authenticate(request *http.Request, cache *cache.LruCache) *http.Response {
 			authed = err == nil && authenticator.Verify(user, pass)
 			cache.Set(credential, authed)
 		}
-		if !authed.(bool) {
+		if !authed {
 			log.Infoln("Auth failed from %s", request.RemoteAddr)
 
 			return responseWith(request, http.StatusForbidden)

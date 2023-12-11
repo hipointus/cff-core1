@@ -1,9 +1,9 @@
 package sing_tun
 
 import (
-	"github.com/Dreamacro/clash/log"
+	"github.com/metacubex/mihomo/log"
+	tun "github.com/metacubex/sing-tun"
 	"github.com/sagernet/netlink"
-	tun "github.com/sagernet/sing-tun"
 	"golang.org/x/sys/unix"
 	"runtime"
 )
@@ -22,7 +22,7 @@ func (l *Listener) buildAndroidRules(tunOptions *tun.Options) error {
 	return nil
 }
 
-func (h *DnsListenerHandler) OnPackagesUpdated(packages int, sharedUsers int) {
+func (h *ListenerHandler) OnPackagesUpdated(packages int, sharedUsers int) {
 	return
 }
 

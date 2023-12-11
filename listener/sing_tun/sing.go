@@ -3,13 +3,14 @@ package sing_tun
 import (
 	"context"
 	"errors"
-	"github.com/Dreamacro/clash/adapter/inbound"
 	"net"
 	"sync"
 	"time"
 
-	C "github.com/Dreamacro/clash/constant"
-	"github.com/Dreamacro/clash/log"
+	"github.com/metacubex/mihomo/adapter/inbound"
+
+	C "github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/log"
 
 	"github.com/sagernet/sing/common/buf"
 	"github.com/sagernet/sing/common/bufio"

@@ -5,8 +5,8 @@ import (
 	"net/netip"
 	"strconv"
 
-	C "github.com/Dreamacro/clash/constant"
-	"github.com/Dreamacro/clash/context"
+	C "github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/context"
 )
 
 // NewTunSocket receive TCP inbound and return ConnContext

@@ -1,14 +1,15 @@
 package listener
 
 import (
-	"github.com/Dreamacro/clash/adapter/inbound"
-	"github.com/Dreamacro/clash/config"
-	C "github.com/Dreamacro/clash/constant"
-	"github.com/Dreamacro/clash/listener/sing_tun"
-	"github.com/Dreamacro/clash/log"
-	"golang.org/x/exp/slices"
 	"sort"
 	"sync"
+
+	"github.com/metacubex/mihomo/adapter/inbound"
+	"github.com/metacubex/mihomo/config"
+	C "github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/listener/sing_tun"
+	"github.com/metacubex/mihomo/log"
+	"golang.org/x/exp/slices"
 )
 
 var (
