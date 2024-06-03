@@ -1,6 +1,8 @@
 module github.com/metacubex/mihomo
 
-go 1.20
+go 1.21
+
+toolchain go1.22.2
 
 require (
 	github.com/3andne/restls-client-go v0.1.6
@@ -30,7 +32,8 @@ require (
 	github.com/miekg/dns v1.1.57
 	github.com/mroth/weightedrand/v2 v2.1.0
 	github.com/openacid/low v0.1.21
-	github.com/oschwald/maxminddb-golang v1.12.0
+	github.com/oschwald/geoip2-golang v1.11.0
+	github.com/oschwald/maxminddb-golang v1.13.0
 	github.com/puzpuzpuz/xsync/v3 v3.0.2
 	github.com/sagernet/bbolt v0.0.0-20231014093535-ea5cb2fe9f0a
 	github.com/sagernet/netlink v0.0.0-20220905062125-8043b4a9aa97
@@ -43,7 +46,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/shirou/gopsutil/v3 v3.23.11
 	github.com/sirupsen/logrus v1.9.3
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/zhangyunhao116/fastrand v0.3.0
 	go.uber.org/automaxprocs v1.5.3
@@ -51,7 +54,7 @@ require (
 	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb
 	golang.org/x/net v0.19.0
 	golang.org/x/sync v0.5.0
-	golang.org/x/sys v0.15.0
+	golang.org/x/sys v0.20.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v3 v3.0.1
 	lukechampine.com/blake3 v1.2.1
